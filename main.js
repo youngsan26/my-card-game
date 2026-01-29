@@ -6,18 +6,21 @@ const matchesEl = document.getElementById("matches");
 const timeEl = document.getElementById("time");
 const statusEl = document.getElementById("status");
 const restartBtn = document.getElementById("restart");
+const boardWrapper = document.querySelector(".board-wrapper");
 const playerNameInput = document.getElementById("playerName");
 const bestMovesEl = document.getElementById("bestMoves");
 const bestTimeEl = document.getElementById("bestTime");
 const leaderboardEl = document.getElementById("leaderboard");
 const leaderboardHint = document.getElementById("leaderboardHint");
 const refreshLeaderboardBtn = document.getElementById("refreshLeaderboard");
+const leaderboardModal = document.getElementById("leaderboardModal");
+const closeLeaderboardBtn = document.getElementById("closeLeaderboard");
 const flipSpeedInput = document.getElementById("flipSpeed");
 const flipSpeedValue = document.getElementById("flipSpeedValue");
 
-const SUPABASE_URL = "https://hjvvgynjkokwqfqlqlsi.supabase.co";
-const SUPABASE_PUBLIC_KEY =
-  "sb_publishable_Xh2jdjzcHt0ZVrYQ7cqxiA_PZRnYsSx";
+const SUPABASE_CONFIG = window.SUPABASE_CONFIG || {};
+const SUPABASE_URL = SUPABASE_CONFIG.url || "";
+const SUPABASE_PUBLIC_KEY = SUPABASE_CONFIG.anonKey || "";
 const SCORES_TABLE = "scores";
 const supabaseClient =
   SUPABASE_URL && SUPABASE_PUBLIC_KEY && window.supabase
@@ -26,7 +29,7 @@ const supabaseClient =
 
 if (!supabaseClient) {
   console.warn(
-    "Supabase client not initialized. Check URL/key and CDN script load."
+    "Supabase client not initialized. Add config.js with URL/key and ensure CDN script loads."
   );
 } else {
   console.info("Supabase client initialized.", SUPABASE_URL);
@@ -125,8 +128,10 @@ function resizeCanvas() {
   const dpr = window.devicePixelRatio || 1;
   canvas.width = Math.floor(cssWidth * dpr);
   canvas.height = Math.floor(cssHeight * dpr);
-  canvas.style.width = `${cssWidth}px`;
-  canvas.style.height = `${cssHeight}px`;
+  const availableWidth = boardWrapper ? boardWrapper.clientWidth : cssWidth;
+  const scale = Math.min(1, availableWidth / cssWidth);
+  canvas.style.width = `${cssWidth * scale}px`;
+  canvas.style.height = `${cssHeight * scale}px`;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
@@ -180,6 +185,7 @@ function resetGame() {
   matchesEl.textContent = "0";
   statusEl.textContent = "Enter your name to start.";
   ensurePlayerName();
+  closeLeaderboardModal();
 }
 
 function toCanvasPoint(event) {
@@ -477,6 +483,23 @@ if (refreshLeaderboardBtn) {
     loadLeaderboard();
   });
 }
+if (closeLeaderboardBtn) {
+  closeLeaderboardBtn.addEventListener("click", () => {
+    closeLeaderboardModal();
+  });
+}
+if (leaderboardModal) {
+  leaderboardModal.addEventListener("click", (event) => {
+    if (event.target === leaderboardModal) {
+      closeLeaderboardModal();
+    }
+  });
+}
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeLeaderboardModal();
+  }
+});
 
 resizeCanvas();
 resetGame();
@@ -543,6 +566,19 @@ function finishGame() {
   statusEl.textContent = "You won! Restart to play again.";
   maybeUpdateBest();
   submitScore();
+  openLeaderboardModal();
+}
+
+function openLeaderboardModal() {
+  if (!leaderboardModal) return;
+  leaderboardModal.classList.add("is-open");
+  leaderboardModal.setAttribute("aria-hidden", "false");
+}
+
+function closeLeaderboardModal() {
+  if (!leaderboardModal) return;
+  leaderboardModal.classList.remove("is-open");
+  leaderboardModal.setAttribute("aria-hidden", "true");
 }
 
 function getPlayerName() {
