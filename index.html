@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas Memory Flip Game</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <div class="title-top">
+        <h1><span>Canvas Memory Flip</span></h1>
+        <div class="stats stats-title">
+          <div><span class="label">Moves</span> <span id="moves">0</span></div>
+          <div><span class="label">Matches</span> <span id="matches">0</span></div>
+          <div><span class="label">Time</span> <span id="time">0.0s</span></div>
+        </div>
+      </div>
+
+      <div class="board-wrapper">
+        <canvas id="game" width="800" height="600"></canvas>
+      </div>
+
+      <div class="controls">
+        <button id="restart">Restart</button>
+        <div class="inline">
+          <label for="playerName">Name</label>
+          <input id="playerName" type="text" maxlength="12" placeholder="Player" />
+        </div>
+        <div class="inline">
+          <label for="flipSpeed">Flip speed</label>
+          <input id="flipSpeed" type="range" min="1" max="6" step="0.1" value="2.6" />
+          <span id="flipSpeedValue" class="muted">2.6x</span>
+        </div>
+        <span id="status">Find all pairs.</span>
+      </div>
+
+      <section class="panels">
+        <div class="panel">
+          <h2>Best</h2>
+          <div class="best-row">
+            <span class="label">Moves</span>
+            <span id="bestMoves">-</span>
+          </div>
+          <div class="best-row">
+            <span class="label">Time</span>
+            <span id="bestTime">-</span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Leaderboard</h2>
+            <button id="refreshLeaderboard" type="button">Refresh</button>
+          </div>
+          <div class="leaderboard-header">
+            <span>Rank</span>
+            <span>Player</span>
+            <span>Time</span>
+            <span>Moves</span>
+          </div>
+          <ol id="leaderboard" class="leaderboard"></ol>
+          <p id="leaderboardHint" class="muted">Connect Supabase to enable ranking.</p>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
