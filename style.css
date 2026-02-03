@@ -400,8 +400,7 @@ button.ghost:hover {
   margin: 0;
   padding-left: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 16px;
+  grid-template-columns: 1fr;
   row-gap: 8px;
 }
 
