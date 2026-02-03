@@ -64,12 +64,17 @@
           </div>
         </div>
         <div class="leaderboard-header">
-          <span>Rank</span>
-          <span>Player</span>
-          <span>Time</span>
-          <span>Moves</span>
+          <span>순위</span>
+          <span>참가자</span>
+          <span>시간</span>
+          <span>횟수</span>
         </div>
         <ol id="leaderboard" class="leaderboard"></ol>
+        <div class="leaderboard-pagination">
+          <button id="leaderboardPrev" type="button" class="ghost">이전</button>
+          <span id="leaderboardPageInfo" class="muted">페이지 1 / 1</span>
+          <button id="leaderboardNext" type="button" class="ghost">다음</button>
+        </div>
         <p id="leaderboardHint" class="muted">Connect Supabase to enable ranking.</p>
       </div>
     </div>

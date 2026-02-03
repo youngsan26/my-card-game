@@ -15,6 +15,9 @@ const leaderboardHint = document.getElementById("leaderboardHint");
 const refreshLeaderboardBtn = document.getElementById("refreshLeaderboard");
 const leaderboardModal = document.getElementById("leaderboardModal");
 const closeLeaderboardBtn = document.getElementById("closeLeaderboard");
+const leaderboardPrevBtn = document.getElementById("leaderboardPrev");
+const leaderboardNextBtn = document.getElementById("leaderboardNext");
+const leaderboardPageInfo = document.getElementById("leaderboardPageInfo");
 const flipSpeedInput = document.getElementById("flipSpeed");
 const flipSpeedValue = document.getElementById("flipSpeedValue");
 
@@ -65,6 +68,8 @@ let gameStarted = false;
 let leaderboardLoading = false;
 const refreshLabel = "Refresh";
 const leaderboardRefreshMs = 10000;
+const leaderboardPageSize = 12;
+const leaderboardMaxRows = 200;
 let unflipDeadline = 0;
 let resolveTimer = null;
 let flipSpeed = 2.6;
@@ -72,6 +77,8 @@ let pendingPair = null;
 let singleFlipTimer = null;
 const singleFlipDelayMs = 900;
 let flipGlow = 0;
+let leaderboardPage = 0;
+let leaderboardData = [];
 
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i -= 1) {
@@ -495,6 +502,23 @@ if (leaderboardModal) {
     }
   });
 }
+if (leaderboardPrevBtn) {
+  leaderboardPrevBtn.addEventListener("click", () => {
+    if (leaderboardPage > 0) {
+      leaderboardPage -= 1;
+      renderLeaderboardPage();
+    }
+  });
+}
+if (leaderboardNextBtn) {
+  leaderboardNextBtn.addEventListener("click", () => {
+    const totalPages = getLeaderboardPageCount();
+    if (leaderboardPage < totalPages - 1) {
+      leaderboardPage += 1;
+      renderLeaderboardPage();
+    }
+  });
+}
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closeLeaderboardModal();
@@ -625,19 +649,43 @@ function setLeaderboardLoadingState(isLoading) {
   refreshLeaderboardBtn.textContent = isLoading ? "Loading..." : refreshLabel;
 }
 
-function renderLeaderboard(rowsData) {
+function getLeaderboardPageCount() {
+  return Math.max(1, Math.ceil(leaderboardData.length / leaderboardPageSize));
+}
+
+function updateLeaderboardPagination() {
+  if (!leaderboardPageInfo) return;
+  const totalPages = getLeaderboardPageCount();
+  const currentPage = Math.min(leaderboardPage + 1, totalPages);
+  leaderboardPageInfo.textContent = `페이지 ${currentPage} / ${totalPages}`;
+  if (leaderboardPrevBtn) {
+    leaderboardPrevBtn.disabled = leaderboardPage <= 0;
+  }
+  if (leaderboardNextBtn) {
+    leaderboardNextBtn.disabled = leaderboardPage >= totalPages - 1;
+  }
+}
+
+function renderLeaderboardPage() {
   leaderboardEl.innerHTML = "";
-  rowsData.forEach((row, index) => {
+  const startIndex = leaderboardPage * leaderboardPageSize;
+  const pageRows = leaderboardData.slice(
+    startIndex,
+    startIndex + leaderboardPageSize
+  );
+  pageRows.forEach((row, index) => {
     const item = document.createElement("li");
     const name = row.player_name || "Player";
+    const rank = startIndex + index + 1;
     item.innerHTML = `
-      <span>#${index + 1}</span>
+      <span>${rank}</span>
       <span>${name}</span>
       <span>${formatTime(row.time_ms)}</span>
       <span>${row.moves}</span>
     `;
     leaderboardEl.appendChild(item);
   });
+  updateLeaderboardPagination();
 }
 
 async function loadLeaderboard() {
@@ -657,19 +705,27 @@ async function loadLeaderboard() {
     .order("time_ms", { ascending: true })
     .order("moves", { ascending: true })
     .order("created_at", { ascending: true })
-    .limit(10);
+    .limit(leaderboardMaxRows);
   leaderboardLoading = false;
   setLeaderboardLoadingState(false);
   if (error) {
     setLeaderboardMessage("Leaderboard unavailable.");
+    leaderboardData = [];
+    leaderboardPage = 0;
+    updateLeaderboardPagination();
     return;
   }
   if (!data || data.length === 0) {
     setLeaderboardMessage("No scores yet.");
+    leaderboardData = [];
+    leaderboardPage = 0;
+    updateLeaderboardPagination();
     return;
   }
   setLeaderboardHint(false);
-  renderLeaderboard(data || []);
+  leaderboardData = data || [];
+  leaderboardPage = 0;
+  renderLeaderboardPage();
 }
 
 async function submitScore() {
