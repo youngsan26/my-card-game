@@ -23,6 +23,13 @@
         <div class="control-row">
           <button id="restart">Restart</button>
           <div class="inline">
+            <label for="playerName" class="label-pill">Name(이름)</label>
+            <input id="playerName" type="text" maxlength="12" placeholder="Player" />
+          </div>
+          <span id="status">Find all pairs.</span>
+        </div>
+        <div class="control-row">
+          <div class="inline">
             <label for="flipSpeed">Flip speed</label>
             <input id="flipSpeed" type="range" min="1" max="6" step="0.1" value="2.6" />
             <span id="flipSpeedValue" class="muted">2.6x</span>
@@ -41,13 +48,6 @@
             <span class="label">Time</span>
             <span id="time">0.0s</span>
           </div>
-        </div>
-        <div class="control-row">
-          <div class="inline">
-            <label for="playerName" class="label-pill">Name(이름)</label>
-            <input id="playerName" type="text" maxlength="12" placeholder="Player" />
-          </div>
-          <span id="status">Find all pairs.</span>
         </div>
       </div>
 
